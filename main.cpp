@@ -6,7 +6,7 @@
  * 
  * 在这个程序中，我们读取两张图像，进行特征匹配。然后根据匹配得到的特征，计算相机运动以及特征点的位置。这是一个典型的Bundle Adjustment，我们用g2o进行优化。
  */
-
+#define useopencv3
 // for std
 #include <iostream>
 // for opencv 
@@ -179,11 +179,19 @@ int main( int argc, char** argv )
 
 int     findCorrespondingPoints( const cv::Mat& img1, const cv::Mat& img2, vector<cv::Point2f>& points1, vector<cv::Point2f>& points2 )
 {
+#ifndef useopencv3    
     cv::ORB orb;
     vector<cv::KeyPoint> kp1, kp2;
     cv::Mat desp1, desp2;
     orb( img1, cv::Mat(), kp1, desp1 );
     orb( img2, cv::Mat(), kp2, desp2 );
+#ifdef useopencv3 
+    cv::Ptr<cv::ORB> orb = cv::ORB::create(4000);
+    vector<cv::KeyPoint> kp1, kp2;
+    cv::Mat desp1, desp2;
+    orb->detectAndCompute( img1, cv::Mat(), kp1, desp1 );
+    orb->detectAndCompute( img2, cv::Mat(), kp2, desp2 );
+ #endif
     cout<<"分别找到了"<<kp1.size()<<"和"<<kp2.size()<<"个特征点"<<endl;
     
     cv::Ptr<cv::DescriptorMatcher>  matcher = cv::DescriptorMatcher::create( "BruteForce-Hamming");
